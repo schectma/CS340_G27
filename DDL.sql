@@ -2,7 +2,9 @@ CREATE DATABASE IF NOT EXISTS `VehicleRentalDB` DEFAULT CHARACTER SET = 'utf8mb4
 
 USE `VehicleRentalDB`;
 
--- Drop all tables if they exist to reset the database
+/* 
+Drop all tables if they exist to reset the database 
+*/
 DROP TABLE IF EXISTS `Rentals`;
 
 DROP TABLE IF EXISTS `VehicleLocations`;
@@ -70,3 +72,129 @@ CREATE TABLE `Rentals` (
     CONSTRAINT `chk_dates` CHECK (`startDate` <= `endDate`), -- Ensures rental start date is before or equal to end date
     CONSTRAINT `chk_totalCost_nonneg` CHECK (`totalCost` >= 0) -- Ensures rental cost cannot be negative
 );
+
+/**********************************************************************
+Insert sample data into the tables
+**********************************************************************/
+INSERT INTO
+    `Customers` (
+        `customerName`,
+        `customerEmail`,
+        `customerPhone`
+    )
+VALUES (
+        'Albert',
+        'Albert@domain.com',
+        '012-345-6789'
+    ),
+    (
+        'Benny',
+        'Benny@domain.com',
+        '012-345-6790'
+    ),
+    (
+        'Charles',
+        'Charles@domain.com',
+        '012-345-6791'
+    ),
+    (
+        'Daniel',
+        'Daniel@domain.com',
+        '012-345-6792'
+    ),
+    (
+        'Edgar',
+        'Edgar@domain.com',
+        '012-345-6793'
+    );
+
+INSERT INTO
+    `Vehicles` (
+        `model`,
+        `year`,
+        `basePrice`,
+        `isAvailable`
+    )
+VALUES ('Ascent', 2022, 40, 0), -- Currently on active rental, so unavailable
+    ('BRAT', 2001, 60, 0), -- Currently on active rental, so unavailable
+    ('Camry', 2006, 90, 1), -- Available for rental
+    ('Durango', 2020, 30, 1), -- Available for rental
+    ('Elantra', 2019, 10, 1);
+-- Available for rental
+
+INSERT INTO
+    `Locations` (`locationName`)
+VALUES ('Albany'),
+    ('Birmingham'),
+    ('Calverton');
+
+INSERT INTO
+    `VehicleLocations` (`vehicleID`, `locationID`)
+VALUES (1, 1), -- Ascent at Albany (currently on rental from Albany)
+    (2, 2), -- BRAT at Birmingham (currently on rental from Birmingham)
+    (3, 3), -- Camry at Calverton (available, no rental history)
+    (4, 2), -- Durango at Birmingham (last dropoff location from most recent rental)
+    (5, 1);
+-- Elantra at Albany (last dropoff location from rental)
+
+INSERT INTO
+    `Rentals` (
+        `vehicleID`,
+        `customerID`,
+        `pickupLocationID`,
+        `dropoffLocationID`,
+        `startDate`,
+        `endDate`,
+        `totalCost`,
+        `isActive`
+    )
+VALUES (
+        1, -- Ascent (currently on active rental)
+        1, -- Albert
+        1, -- Pickup: Albany
+        2, -- Dropoff: Birmingham
+        '2025-10-20',
+        '2025-10-25',
+        200.00, -- 5 days * $40/day
+        1 -- Active rental
+    ),
+    (
+        2, -- BRAT (currently on active rental)
+        2, -- Benny
+        2, -- Pickup: Birmingham
+        3, -- Dropoff: Calverton
+        '2025-10-22',
+        '2025-10-28',
+        360.00, -- 6 days * $60/day
+        1 -- Active rental
+    ),
+    (
+        4, -- Durango (completed rental)
+        3, -- Charles
+        1, -- Pickup: Albany
+        3, -- Dropoff: Calverton
+        '2025-09-10',
+        '2025-09-15',
+        150.00, -- 5 days * $30/day
+        0 -- Completed
+    ),
+    (
+        5, -- Elantra (completed rental)
+        4, -- Daniel
+        2, -- Pickup: Birmingham
+        1, -- Dropoff: Albany
+        '2025-09-01',
+        '2025-09-07',
+        60.00, -- 6 days * $10/day
+        0 -- Completed
+    ),
+    (
+        4, -- Durango (another completed rental)
+        5, -- Edgar
+        3, -- Pickup: Calverton
+        2, -- Dropoff: Birmingham
+        '2025-08-15',
+        '2025-08-20',
+        150.00, -- 5 days * $30/day
+        0 -- Completed
+    );
