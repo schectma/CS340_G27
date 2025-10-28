@@ -1,6 +1,5 @@
-CREATE DATABASE IF NOT EXISTS `VehicleRentalDB` DEFAULT CHARACTER SET = 'utf8mb4';
-
-USE `VehicleRentalDB`;
+SET FOREIGN_KEY_CHECKS=0;
+SET AUTOCOMMIT = 0;
 
 /* 
 Drop all tables if they exist to reset the database 
@@ -198,3 +197,6 @@ VALUES (
         150.00, -- 5 days * $30/day
         0 -- Completed
     );
+
+SET FOREIGN_KEY_CHECKS=1;
+COMMIT;
