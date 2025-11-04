@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customers</title>
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+  <div class="container mt-4">
+    <h1>Customers</h1>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% customers.forEach(customer => { %>
+          <tr>
+            <td><%= customer.customerID %></td>
+            <td><%= customer.customerName %></td>
+            <td><%= customer.customerEmail %></td>
+            <td><%= customer.customerPhone %></td>
+            <td><a href="/customers/delete/<%= customer.customerID %>" class="btn btn-danger btn-sm">Delete</a></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    <h2>Add Customer</h2>
+    <form action="/customers" method="post">
+      <div class="mb-3">
+        <label for="customerName" class="form-label">Name</label>
+        <input type="text" class="form-control" id="customerName" name="customerName" required>
+      </div>
+      <div class="mb-3">
+        <label for="customerEmail" class="form-label">Email</label>
+        <input type="email" class="form-control" id="customerEmail" name="customerEmail" required>
+      </div>
+      <div class="mb-3">
+        <label for="customerPhone" class="form-label">Phone</label>
+        <input type="text" class="form-control" id="customerPhone" name="customerPhone" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Add Customer</button>
+    </form>
+  </div>
+  <script src="/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
