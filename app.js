@@ -10,9 +10,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 
 app.use('/customers', require('./routes/customers'));
-// app.use('/vehicles', require('./routes/vehicles'));
+app.use('/vehicles', require('./routes/vehicles'));
 // app.use('/locations', require('./routes/locations'));
-// app.use('/rentals', require('./routes/rentals'));
+app.use('/rentals', require('./routes/rentals'));
 
 app.get('/', (req, res) => {
   res.redirect('/customers');

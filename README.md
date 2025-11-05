@@ -9,3 +9,9 @@ DB_PORT=3306
 # Server Configuration
 
 PORT=3000
+
+## References:
+
+Copilot Prompt: boiler plate code for a node express web app using bootstrap for styling
+
+https://expressjs.com/en/guide/database-integration.html#mysql

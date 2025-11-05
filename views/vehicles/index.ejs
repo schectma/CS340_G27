@@ -1,19 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vehicles</title>
   <link href="/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body>
   <%- include('../partials/navbar') %>
-  <div class="container mt-4">
-    <h1>Vehicles</h1>
-    
-
-    
-  </div>
-  <script src="/js/bootstrap.bundle.min.js"></script>
+    <div class="container mt-4">
+      <h1>Vehicles</h1>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Model</th>
+            <th>Year</th>
+            <th>Base Price</th>
+            <th>Available</th>
+            <th>Update</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% vehicles.forEach(vehicle=> { %>
+            <tr>
+              <td>
+                <%= vehicle.vehicleID %>
+              </td>
+              <td>
+                <%= vehicle.model %>
+              </td>
+              <td>
+                <%= vehicle.year %>
+              </td>
+              <td>
+                <%= vehicle.basePrice %>
+              </td>
+              <td>
+                <%= vehicle.isAvailable ? 'Yes' : 'No' %>
+              </td>
+              <td><a href="/vehicles/update/<%= vehicle.vehicleID %>" class="btn btn-secondary btn-sm">Update</a></td>
+              <td><a href="/vehicles/delete/<%= vehicle.vehicleID %>" class="btn btn-danger btn-sm">Delete</a></td>
+            </tr>
+            <% }) %>
+        </tbody>
+      </table>
+      <h2>Add Vehicle</h2>
+      <form action="/vehicles" method="post">
+        <div class="mb-3">
+          <label for="model" class="form-label">Model</label>
+          <input type="text" class="form-control" id="model" name="model" required>
+        </div>
+        <div class="mb-3">
+          <label for="year" class="form-label">Year</label>
+          <input type="number" class="form-control" id="year" name="year" required>
+        </div>
+        <div class="mb-3">
+          <label for="basePrice" class="form-label">Base Price</label>
+          <input type="number" step="0.01" class="form-control" id="basePrice" name="basePrice" required>
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="isAvailable" name="isAvailable" value="1">
+          <label class="form-check-label" for="isAvailable">Available</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Vehicle</button>
+      </form>
+    </div>
+    <script src="/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
