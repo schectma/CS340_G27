@@ -10,10 +10,41 @@
   <%- include('../partials/navbar') %>
   <div class="container mt-4">
     <h1>Locations</h1>
-    
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (typeof locations !== 'undefined' && locations.length) { %>
+          <% locations.forEach(location => { %>
+            <tr>
+              <td><%= location.locationID %></td>
+              <td><%= location.locationName %></td>
+              <td>
+                <a href="/locations/delete/<%= location.locationID %>" class="btn btn-danger btn-sm">Delete</a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="4" class="text-muted">No locations found.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
 
-
-    
+    <h2>Add Location</h2>
+    <form action="/locations" method="post">
+      <div class="mb-3">
+        <label for="locationName" class="form-label">Name</label>
+        <input type="text" class="form-control" id="locationName" name="locationName" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Add Location</button>
+    </form>
   </div>
   <script src="/js/bootstrap.bundle.min.js"></script>
 </body>
