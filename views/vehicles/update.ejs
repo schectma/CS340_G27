@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Vehicle</title>
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <%- include('../partials/navbar') %>
+    <div class="container mt-4">
+      <h1>Update Vehicle</h1>
+      <form action="/vehicles/update/<%= vehicle.vehicleID %>" method="POST">
+        <div class="mb-3">
+          <label for="model" class="form-label">Model</label>
+          <input type="text" class="form-control" id="model" name="model" value="<%= vehicle.model %>" required>
+        </div>
+        <div class="mb-3">
+          <label for="year" class="form-label">Year</label>
+          <input type="number" class="form-control" id="year" name="year" value="<%= vehicle.year %>" required>
+        </div>
+        <div class="mb-3">
+          <label for="basePrice" class="form-label">Base Price</label>
+          <input type="number" class="form-control" id="basePrice" name="basePrice" step="0.01" value="<%= vehicle.basePrice %>" required>
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="isAvailable" name="isAvailable" <%= vehicle.isAvailable ? 'checked' : '' %>>
+          <label class="form-check-label" for="isAvailable">Available</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Update Vehicle</button>
+        <a href="/vehicles" class="btn btn-secondary">Cancel</a>
+      </form>
+    </div>
+</body>
+
+</html>
