@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vehicle Locations</title>
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <%- include('../partials/navbar') %>
+  <div class="container mt-4">
+    <h1>Vehicle Locations</h1>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Vehicle</th>
+          <th>Location</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (vehicleLocations && vehicleLocations.length) { %>
+          <% vehicleLocations.forEach(vl => { %>
+            <tr>
+              <td><%= vl.vehicleLocationID %></td>
+              <td><%= vl.model %> (<%= vl.vehicleID %>)</td>
+              <td><%= vl.locationName %> (<%= vl.locationID %>)</td>
+              <td>
+                <a href="/vehicles_locations/delete/<%= vl.vehicleLocationID %>" class="btn btn-danger btn-sm">Delete</a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="5" class="text-muted">No vehicle-location assignments found.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+
+    <h2>Assign Vehicle to Location</h2>
+    <form action="/vehicles_locations" method="post">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="vehicleID" class="form-label">Vehicle</label>
+          <select id="vehicleID" name="vehicleID" class="form-select" required>
+            <option value="">-- select vehicle --</option>
+            <% vehicles.forEach(vehicle => { %>
+              <option value="<%= vehicle.vehicleID %>"><%= vehicle.model %> (<%= vehicle.year %>)</option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="locationID" class="form-label">Location</label>
+          <select id="locationID" name="locationID" class="form-select" required>
+            <option value="">-- select location --</option>
+            <% locations.forEach(loc => { %>
+              <option value="<%= loc.locationID %>"><%= loc.locationName %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Assign</button>
+    </form>
+  </div>
+  <script src="/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
