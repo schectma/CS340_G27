@@ -2,27 +2,36 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
-router.get('/', (req, res) => {
-  db.query('SELECT * FROM Customers', (err, results) => {
-    if (err) throw err;
+router.get('/', async (req, res) => {
+  try {
+    const [results] = await db.query('SELECT * FROM Customers');
     res.render('customers/index', { customers: results });
-  });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Database error');
+  }
 });
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const { customerName, customerEmail, customerPhone } = req.body;
-  db.query('INSERT INTO Customers (customerName, customerEmail, customerPhone) VALUES (?, ?, ?)', [customerName, customerEmail, customerPhone], (err) => {
-    if (err) throw err;
+  try {
+    await db.query('INSERT INTO Customers (customerName, customerEmail, customerPhone) VALUES (?, ?, ?)', [customerName, customerEmail, customerPhone]);
     res.redirect('/customers');
-  });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Database error');
+  }
 });
 
-router.get('/delete/:id', (req, res) => {
+router.get('/delete/:id', async (req, res) => {
   const { id } = req.params;
-  db.query('DELETE FROM Customers WHERE customerID = ?', [id], (err) => {
-    if (err) throw err;
+  try {
+    await db.query('DELETE FROM Customers WHERE customerID = ?', [id]);
     res.redirect('/customers');
-  });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Database error');
+  }
 });
 
 module.exports = router;
