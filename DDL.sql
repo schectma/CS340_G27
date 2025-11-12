@@ -22,7 +22,8 @@ CREATE TABLE `Vehicles` (
     `isAvailable` BOOL NOT NULL DEFAULT 1,
     `createdAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`vehicleID`),
-    CONSTRAINT `chk_basePrice_nonneg` CHECK (`basePrice` >= 0) -- ensures that the base price cannot be negative
+    CONSTRAINT `chk_basePrice_nonneg` CHECK (`basePrice` >= 0), -- ensures that the base price cannot be negative
+    CONSTRAINT `uniq_vehicle_model` UNIQUE (`model`) -- allow FK references by vehicle model
 );
 
 CREATE TABLE `Locations` (
@@ -55,6 +56,7 @@ CREATE TABLE `VehicleLocations` (
 CREATE TABLE `Rentals` (
     `rentalID` INT NOT NULL AUTO_INCREMENT,
     `vehicleID` INT NOT NULL,
+    `vehicleModel` VARCHAR(100) DEFAULT NULL,
     `customerID` INT NOT NULL,
     `pickupLocationID` INT NOT NULL,
     `dropoffLocationID` INT NOT NULL,
@@ -65,6 +67,7 @@ CREATE TABLE `Rentals` (
     `createdAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`rentalID`),
     CONSTRAINT `fk_rentals_vehicle` FOREIGN KEY (`vehicleID`) REFERENCES `Vehicles` (`vehicleID`) ON DELETE RESTRICT ON UPDATE CASCADE, -- prevents deleting vehicle with active rentals
+    CONSTRAINT `fk_rentals_vehicleModel` FOREIGN KEY (`vehicleModel`) REFERENCES `Vehicles` (`model`) ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT `fk_rentals_customer` FOREIGN KEY (`customerID`) REFERENCES `Customers` (`customerID`) ON DELETE RESTRICT ON UPDATE CASCADE, -- prevents deleting customer with rentals
     CONSTRAINT `fk_rentals_pickup_location` FOREIGN KEY (`pickupLocationID`) REFERENCES `Locations` (`locationID`) ON DELETE RESTRICT ON UPDATE CASCADE, -- prevents deleting location used in rentals
     CONSTRAINT `fk_rentals_dropoff_location` FOREIGN KEY (`dropoffLocationID`) REFERENCES `Locations` (`locationID`) ON DELETE RESTRICT ON UPDATE CASCADE, -- prevents deleting location used in rentals

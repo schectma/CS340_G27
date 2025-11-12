@@ -17,10 +17,10 @@
         <thead>
           <tr>
             <th>ID</th>
-            <th>Vehicle ID</th>
-            <th>Customer ID</th>
-            <th>Pickup Location ID</th>
-            <th>Dropoff Location ID</th>
+            <th>Vehicle</th>
+            <th>Customer</th>
+            <th>Pickup Location</th>
+            <th>Dropoff Location</th>
             <th>Start Date</th>
             <th>End Date</th>
             <th>Total Cost</th>
@@ -35,16 +35,16 @@
                 <%= rental.rentalID %>
               </td>
               <td>
-                <%= rental.vehicleID %>
+                <%= rental.vehicleModel || rental.vehicleID %>
               </td>
               <td>
-                <%= rental.customerID %>
+                <%= rental.customerName || rental.customerID %>
               </td>
               <td>
-                <%= rental.pickupLocationID %>
+                <%= rental.pickupLocationName || rental.pickupLocationID %>
               </td>
               <td>
-                <%= rental.dropoffLocationID %>
+                <%= rental.dropoffLocationName || rental.dropoffLocationID %>
               </td>
               <td>
                 <%= rental.startDate %>
