@@ -20,6 +20,13 @@ VALUES (@customerName, @customerEmail, @customerPhone);
 DELETE FROM Customers
 WHERE customerID = @customerID;
 
+-- Update a customer
+UPDATE Customers
+SET customerName = @customerName,
+    customerEmail = @customerEmail,
+    customerPhone = @customerPhone
+WHERE customerID = @customerID;
+
 
 -- ==========================
 -- Vehicles (full CRUD)
@@ -69,6 +76,11 @@ VALUES (@locationName);
 DELETE FROM Locations
 WHERE locationID = @locationID;
 
+-- Update a location
+UPDATE Locations
+SET locationName = @locationName
+WHERE locationID = @locationID;
+
 
 -- ==========================
 -- VehicleLocations (CRD)
@@ -87,6 +99,19 @@ VALUES (@vehicleID, @locationID);
 
 -- Delete an assignment (remove vehicle from location)
 DELETE FROM VehicleLocations
+WHERE vehicleLocationID = @vehicleLocationID;
+
+-- Update a vehicle-location assignment (example: change location for the latest assignment for a vehicle)
+UPDATE VehicleLocations
+SET locationID = @locationID
+WHERE vehicleID = @vehicleID
+ORDER BY createdAt DESC
+LIMIT 1;
+
+-- Or update by primary key
+UPDATE VehicleLocations
+SET vehicleID = @vehicleID,
+    locationID = @locationID
 WHERE vehicleLocationID = @vehicleLocationID;
 
 
