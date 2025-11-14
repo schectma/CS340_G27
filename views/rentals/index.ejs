@@ -46,10 +46,10 @@
                 <%= rental.dropoffLocationName || rental.dropoffLocationID %>
               </td>
               <td>
-                <%= rental.startDate %>
+                <%= rental.startDate ? (new Date(rental.startDate)).toLocaleDateString('en-US') : '' %>
               </td>
               <td>
-                <%= rental.endDate %>
+                <%= rental.endDate ? (new Date(rental.endDate)).toLocaleDateString('en-US') : '' %>
               </td>
               <td>
                 <%= rental.totalCost %>
