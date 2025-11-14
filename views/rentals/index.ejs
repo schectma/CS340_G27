@@ -11,16 +11,15 @@
 <body>
   <%- include('../partials/navbar') %>
     <div class="container mt-4">
-      <h1>Rentals</h1>
-      <a href="/rentals/new" class="btn btn-primary mb-3">New Rental</a>
+  <h1>Rentals</h1>
       <table class="table">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Vehicle ID</th>
-            <th>Customer ID</th>
-            <th>Pickup Location ID</th>
-            <th>Dropoff Location ID</th>
+            <th>Vehicle</th>
+            <th>Customer</th>
+            <th>Pickup Location</th>
+            <th>Dropoff Location</th>
             <th>Start Date</th>
             <th>End Date</th>
             <th>Total Cost</th>
@@ -35,16 +34,16 @@
                 <%= rental.rentalID %>
               </td>
               <td>
-                <%= rental.vehicleID %>
+                <%= rental.vehicleModel || rental.vehicleID %>
               </td>
               <td>
-                <%= rental.customerID %>
+                <%= rental.customerName || rental.customerID %>
               </td>
               <td>
-                <%= rental.pickupLocationID %>
+                <%= rental.pickupLocationName || rental.pickupLocationID %>
               </td>
               <td>
-                <%= rental.dropoffLocationID %>
+                <%= rental.dropoffLocationName || rental.dropoffLocationID %>
               </td>
               <td>
                 <%= rental.startDate %>
@@ -63,6 +62,74 @@
             <% }) %>
         </tbody>
       </table>
+
+      <!-- Inline Add Rental form (below the table) -->
+      <h2 class="mt-4">Add Rental</h2>
+      <form action="/rentals" method="POST">
+        <div class="mb-3">
+          <label for="vehicleID" class="form-label">Vehicle</label>
+          <select id="vehicleID" name="vehicleID" class="form-select" required>
+            <option value="">Choose vehicle</option>
+            <% (vehicles || []).forEach(v => { %>
+              <option value="<%= v.vehicleID %>"><%= v.model %> (<%= v.year %>) - <%= v.isAvailable ? 'Available' : 'Unavailable' %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="customerID" class="form-label">Customer</label>
+          <select id="customerID" name="customerID" class="form-select" required>
+            <option value="">Choose customer</option>
+            <% (customers || []).forEach(c => { %>
+              <option value="<%= c.customerID %>"><%= c.customerName %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="row">
+          <div class="col mb-3">
+            <label for="pickupLocationID" class="form-label">Pickup Location</label>
+            <select id="pickupLocationID" name="pickupLocationID" class="form-select" required>
+              <option value="">Choose pickup</option>
+              <% (locations || []).forEach(l => { %>
+                <option value="<%= l.locationID %>"><%= l.locationName %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="col mb-3">
+            <label for="dropoffLocationID" class="form-label">Dropoff Location</label>
+            <select id="dropoffLocationID" name="dropoffLocationID" class="form-select" required>
+              <option value="">Choose dropoff</option>
+              <% (locations || []).forEach(l => { %>
+                <option value="<%= l.locationID %>"><%= l.locationName %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col mb-3">
+            <label for="startDate" class="form-label">Start Date</label>
+            <input id="startDate" name="startDate" type="date" class="form-control" required>
+          </div>
+          <div class="col mb-3">
+            <label for="endDate" class="form-label">End Date</label>
+            <input id="endDate" name="endDate" type="date" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="totalCost" class="form-label">Total Cost</label>
+          <input id="totalCost" name="totalCost" type="number" step="0.01" class="form-control" placeholder="0.00">
+        </div>
+
+        <div class="form-check mb-3">
+          <input id="isActive" name="isActive" type="checkbox" class="form-check-input" checked>
+          <label class="form-check-label" for="isActive">Active</label>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Create Rental</button>
+      </form>
     </div>
     <script src="/js/bootstrap.bundle.min.js"></script>
 </body>
