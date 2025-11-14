@@ -1,4 +1,5 @@
-SET FOREIGN_KEY_CHECKS=0;
+SET FOREIGN_KEY_CHECKS = 0;
+
 SET AUTOCOMMIT = 0;
 
 /* 
@@ -40,7 +41,8 @@ CREATE TABLE `Customers` (
     `customerPhone` VARCHAR(100) NOT NULL,
     `createdAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`customerID`),
-    CONSTRAINT `uniq_customer_email` UNIQUE (`customerEmail`) -- Prevents duplicate email addresses
+    CONSTRAINT `uniq_customer_email` UNIQUE (`customerEmail`), -- Prevents duplicate email addresses
+    CONSTRAINT `uniq_customer_phone` UNIQUE (`customerPhone`) -- Prevents duplicate phone numbers
 );
 
 CREATE TABLE `VehicleLocations` (
@@ -201,5 +203,6 @@ VALUES (
         0 -- Completed
     );
 
-SET FOREIGN_KEY_CHECKS=1;
+SET FOREIGN_KEY_CHECKS = 1;
+
 COMMIT;
