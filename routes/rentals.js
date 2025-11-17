@@ -2,6 +2,17 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
+// Helper function to get user-friendly error messages
+function getErrorMessage(err) {
+  if (err.code === 'ER_NO_REFERENCED_ROW_2') {
+    return 'Cannot create rental: referenced vehicle, customer, or location does not exist.';
+  }
+  if (err.code === 'ER_DUP_ENTRY') {
+    return 'This rental information already exists.';
+  }
+  return 'An unexpected database error occurred.';
+}
+
 router.get('/', async (req, res) => {
   try {
     // Use LEFT JOIN to pull vehicle model without excluding Rentals that may have missing FK rows
@@ -20,7 +31,7 @@ router.get('/', async (req, res) => {
     const [customers] = await db.query('SELECT customerID, customerName FROM Customers ORDER BY customerName');
     const [locations] = await db.query('SELECT locationID, locationName FROM Locations ORDER BY locationName');
 
-    res.render('rentals/index', { rentals, vehicles, customers, locations });
+    res.render('rentals/index', { rentals, vehicles, customers, locations, error: req.query.error });
   } catch (err) {
     console.error(err);
     res.status(500).send('Database error');
@@ -50,7 +61,21 @@ router.post('/', async (req, res) => {
     res.redirect('/rentals');
   } catch (err) {
     console.error(err);
-    res.status(500).send('Database error');
+    const errorMessage = getErrorMessage(err);
+    res.redirect(`/rentals?error=${encodeURIComponent(errorMessage)}`);
+  }
+});
+
+// Delete a rental
+router.get('/delete/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('DELETE FROM Rentals WHERE rentalID = ?', [id]);
+    res.redirect('/rentals');
+  } catch (err) {
+    console.error(err);
+    const errorMessage = getErrorMessage(err);
+    res.redirect(`/rentals?error=${encodeURIComponent(errorMessage)}`);
   }
 });
 

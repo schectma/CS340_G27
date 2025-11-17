@@ -2,6 +2,17 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
+// Helper function to get user-friendly error messages
+function getErrorMessage(err) {
+  if (err.code === 'ER_ROW_IS_REFERENCED_2') {
+    return 'Cannot delete this vehicle location assignment.';
+  }
+  if (err.code === 'ER_DUP_ENTRY') {
+    return 'This vehicle location assignment already exists.';
+  }
+  return 'An unexpected database error occurred.';
+}
+
 // List all vehicle-location assignments and provide vehicles/locations for the add form
 router.get('/', async (req, res) => {
   const listSql = `
@@ -16,7 +27,7 @@ router.get('/', async (req, res) => {
     const [results] = await db.query(listSql);
     const [vehicles] = await db.query('SELECT vehicleID, model, year, isAvailable FROM Vehicles ORDER BY model');
     const [locations] = await db.query('SELECT locationID, locationName FROM Locations ORDER BY locationName');
-    res.render('vehicles_locations/index', { vehicleLocations: results, vehicles, locations });
+    res.render('vehicles_locations/index', { vehicleLocations: results, vehicles, locations, error: req.query.error });
   } catch (err) {
     console.error(err);
     res.status(500).send('Database error');
@@ -32,13 +43,9 @@ router.post('/', async (req, res) => {
     res.redirect('/vehicles_locations');
   } catch (err) {
     console.error(err);
-    res.status(500).send('Database error');
+    const errorMessage = getErrorMessage(err);
+    res.redirect(`/vehicles_locations?error=${encodeURIComponent(errorMessage)}`);
   }
-});
-
-// Delete an assignment (no-op in previous code; keep redirect)
-router.get('/delete/:id', (req, res) => {
-  res.redirect('/vehicles_locations');
 });
 
 module.exports = router;
