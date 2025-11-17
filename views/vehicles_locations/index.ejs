@@ -12,6 +12,12 @@
   <%- include('../partials/navbar') %>
   <div class="container mt-4">
     <h1>Vehicle Locations</h1>
+    <% if (error) { %>
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <%= error %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    <% } %>
 
     <table class="table">
       <thead>
@@ -19,7 +25,6 @@
           <th>ID</th>
           <th>Vehicle</th>
           <th>Location</th>
-          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -29,14 +34,11 @@
               <td><%= vl.vehicleLocationID %></td>
               <td><%= vl.model %> (<%= vl.vehicleID %>)</td>
               <td><%= vl.locationName %> (<%= vl.locationID %>)</td>
-              <td>
-                <a href="/vehicles_locations/delete/<%= vl.vehicleLocationID %>" class="btn btn-danger btn-sm">Delete</a>
-              </td>
             </tr>
           <% }) %>
         <% } else { %>
           <tr>
-            <td colspan="5" class="text-muted">No vehicle-location assignments found.</td>
+            <td colspan="4" class="text-muted">No vehicle-location assignments found.</td>
           </tr>
         <% } %>
       </tbody>

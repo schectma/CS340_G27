@@ -1,18 +1,17 @@
-SET FOREIGN_KEY_CHECKS = 0;
+DROP PROCEDURE IF EXISTS ResetDatabase;
 
-SET AUTOCOMMIT = 0;
+DELIMITER //
 
-/* 
-Drop all tables if they exist to reset the database 
-*/
+CREATE PROCEDURE ResetDatabase()
+BEGIN
+    SET FOREIGN_KEY_CHECKS = 0;
+    SET AUTOCOMMIT = 0;
+
+-- Drop all tables if they exist to reset the database 
 DROP TABLE IF EXISTS `Rentals`;
-
 DROP TABLE IF EXISTS `VehicleLocations`;
-
 DROP TABLE IF EXISTS `Customers`;
-
 DROP TABLE IF EXISTS `Locations`;
-
 DROP TABLE IF EXISTS `Vehicles`;
 
 CREATE TABLE `Vehicles` (
@@ -77,9 +76,9 @@ CREATE TABLE `Rentals` (
     CONSTRAINT `chk_totalCost_nonneg` CHECK (`totalCost` >= 0) -- Ensures rental cost cannot be negative
 );
 
-/**********************************************************************
-Insert sample data into the tables
-**********************************************************************/
+
+-- Insert sample data into the tables
+
 INSERT INTO
     `Customers` (
         `customerName`,
@@ -206,3 +205,8 @@ VALUES (
 SET FOREIGN_KEY_CHECKS = 1;
 
 COMMIT;
+
+END //
+/
+
+DELIMITER;

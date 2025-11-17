@@ -15,6 +15,18 @@ app.use('/locations', require('./routes/locations'));
 app.use('/rentals', require('./routes/rentals'));
 app.use('/vehicles_locations', require('./routes/vehicles_locations'));
 
+// Reset database route
+app.post('/reset', async (req, res) => {
+  try {
+    await db.query('CALL ResetDatabase()');
+    res.redirect('/customers?message=Database reset successfully');
+  } catch (error) {
+    console.error('Error resetting database:', error);
+    const errorMessage = 'Failed to reset database. Please ensure the ResetDatabase stored procedure exists and try again.';
+    res.redirect(`/customers?error=${encodeURIComponent(errorMessage)}`);
+  }
+});
+
 app.get('/', (req, res) => {
   res.redirect('/customers');
 });
