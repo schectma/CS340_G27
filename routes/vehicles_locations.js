@@ -34,12 +34,29 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Update a vehicle-location assignment
+// Update or add a vehicle-location assignment
 router.post('/', async (req, res) => {
   const { vehicleID, locationID } = req.body;
-  const updateSql = 'UPDATE VehicleLocations SET locationID = ? WHERE vehicleID = ? ORDER BY createdAt DESC LIMIT 1';
   try {
-    await db.query(updateSql, [locationID, vehicleID]);
+    // Check if this vehicle already has a location assignment
+    const [existing] = await db.query(
+      'SELECT vehicleLocationID FROM VehicleLocations WHERE vehicleID = ? LIMIT 1',
+      [vehicleID]
+    );
+
+    if (existing.length > 0) {
+      // Update the existing assignment (most recent one)
+      await db.query(
+        'UPDATE VehicleLocations SET locationID = ? WHERE vehicleID = ? ORDER BY createdAt DESC LIMIT 1',
+        [locationID, vehicleID]
+      );
+    } else {
+      // Insert new assignment
+      await db.query(
+        'INSERT INTO VehicleLocations (vehicleID, locationID) VALUES (?, ?)',
+        [vehicleID, locationID]
+      );
+    }
     res.redirect('/vehicles_locations');
   } catch (err) {
     console.error(err);
