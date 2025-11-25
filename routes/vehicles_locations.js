@@ -34,12 +34,12 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Update a vehicle-location assignment
+// Update or add a vehicle-location assignment using stored procedure
 router.post('/', async (req, res) => {
   const { vehicleID, locationID } = req.body;
-  const updateSql = 'UPDATE VehicleLocations SET locationID = ? WHERE vehicleID = ? ORDER BY createdAt DESC LIMIT 1';
   try {
-    await db.query(updateSql, [locationID, vehicleID]);
+    // Call stored procedure to upsert vehicle location
+    await db.query('CALL UpsertVehicleLocation(?, ?)', [vehicleID, locationID]);
     res.redirect('/vehicles_locations');
   } catch (err) {
     console.error(err);
