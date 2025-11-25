@@ -13,26 +13,11 @@ CREATE PROCEDURE UpsertVehicleLocation(
     IN p_locationID INT
 )
 BEGIN
-    DECLARE v_exists INT DEFAULT 0;
-    
-    -- Check if vehicle already has a location assignment
-    SELECT COUNT(*) INTO v_exists
-    FROM VehicleLocations
-    WHERE vehicleID = p_vehicleID
-    LIMIT 1;
-    
-    IF v_exists > 0 THEN
-        -- Update the most recent assignment for this vehicle
-        UPDATE VehicleLocations
-        SET locationID = p_locationID
-        WHERE vehicleID = p_vehicleID
-        ORDER BY createdAt DESC
-        LIMIT 1;
-    ELSE
-        -- Insert new vehicle-location assignment
-        INSERT INTO VehicleLocations (vehicleID, locationID)
-        VALUES (p_vehicleID, p_locationID);
-    END IF;
+    -- Upsert vehicle location atomically
+    INSERT INTO VehicleLocations (vehicleID, locationID)
+    VALUES (p_vehicleID, p_locationID)
+    ON DUPLICATE KEY UPDATE
+        locationID = VALUES(locationID);
 END //
 
 DELIMITER ;
