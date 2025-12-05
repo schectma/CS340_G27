@@ -32,7 +32,8 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   const { customerName, customerEmail, customerPhone } = req.body;
   try {
-    await db.query('INSERT INTO Customers (customerName, customerEmail, customerPhone) VALUES (?, ?, ?)', [customerName, customerEmail, customerPhone]);
+    // Call stored procedure to create customer
+    await db.query('CALL CreateCustomer(?, ?, ?)', [customerName, customerEmail, customerPhone]);
     res.redirect('/customers');
   } catch (err) {
     console.error(err);

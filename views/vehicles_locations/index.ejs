@@ -25,6 +25,7 @@
           <th>ID</th>
           <th>Vehicle</th>
           <th>Location</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -34,11 +35,14 @@
               <td><%= vl.vehicleLocationID %></td>
               <td><%= vl.model %> (<%= vl.vehicleID %>)</td>
               <td><%= vl.locationName %> (<%= vl.locationID %>)</td>
+              <td>
+                <a href="/vehicles_locations/delete/<%= vl.vehicleLocationID %>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this vehicle-location assignment?');">Delete</a>
+              </td>
             </tr>
           <% }) %>
         <% } else { %>
           <tr>
-            <td colspan="4" class="text-muted">No vehicle-location assignments found.</td>
+            <td colspan="5" class="text-muted">No vehicle-location assignments found.</td>
           </tr>
         <% } %>
       </tbody>

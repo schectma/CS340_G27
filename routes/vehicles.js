@@ -67,7 +67,8 @@ router.post('/update/:id', async (req, res) => {
   const { model, year, basePrice, isAvailable } = req.body;
   const available = isAvailable ? 1 : 0;
   try {
-    await db.query('UPDATE Vehicles SET model = ?, year = ?, basePrice = ?, isAvailable = ? WHERE vehicleID = ?', [model, year, basePrice, available, id]);
+    // Call stored procedure to update vehicle
+    await db.query('CALL UpdateVehicle(?, ?, ?, ?, ?)', [id, model, year, basePrice, available]);
     res.redirect('/vehicles');
   } catch (err) {
     console.error(err);
