@@ -26,8 +26,18 @@ router.get('/', async (req, res) => {
       ORDER BY r.startDate DESC
     `);
 
-    // Fetch dropdown data for inline Add Rental form
-    const [vehicles] = await db.query('SELECT vehicleID, model, year, isAvailable FROM Vehicles ORDER BY model');
+    // Fetch dropdown data for inline Add Rental form - only show vehicles without active rentals
+    const [vehicles] = await db.query(`
+      SELECT v.vehicleID, v.model, v.year, v.basePrice, v.isAvailable 
+      FROM Vehicles v
+      WHERE v.isAvailable = 1
+      AND NOT EXISTS (
+        SELECT 1 FROM Rentals r 
+        WHERE r.vehicleID = v.vehicleID 
+        AND r.isActive = 1
+      )
+      ORDER BY v.model
+    `);
     const [customers] = await db.query('SELECT customerID, customerName FROM Customers ORDER BY customerName');
     const [locations] = await db.query('SELECT locationID, locationName FROM Locations ORDER BY locationName');
 
@@ -46,18 +56,37 @@ router.post('/', async (req, res) => {
   // Basic validation consistent with other routes in repo
   if (!vehicleID || !customerID || !pickupLocationID || !dropoffLocationID || !startDate || !endDate) {
     console.error('Missing required rental field');
-    return res.status(400).send('Missing required field');
+    return res.redirect('/rentals?error=' + encodeURIComponent('Missing required field'));
   }
   if (startDate > endDate) {
-    return res.status(400).send('Start date must be before or equal to end date');
+    return res.redirect('/rentals?error=' + encodeURIComponent('Start date must be before or equal to end date'));
   }
 
   try {
+    // Check if vehicle is available and not on an active rental
+    const [vehicle] = await db.query(
+      `SELECT isAvailable FROM Vehicles 
+       WHERE vehicleID = ? 
+       AND isAvailable = 1
+       AND NOT EXISTS (SELECT 1 FROM Rentals WHERE vehicleID = ? AND isActive = 1)`,
+      [vehicleID, vehicleID]
+    );
+    if (!vehicle) {
+      return res.redirect('/rentals?error=' + encodeURIComponent('This vehicle is currently unavailable or on an active rental. Please select a different vehicle.'));
+    }
+    if (!vehicle[0].isAvailable) {
+      return res.redirect('/rentals?error=' + encodeURIComponent('This vehicle is currently unavailable. Please select a different vehicle.'));
+    }
+
     await db.query(
       `INSERT INTO Rentals (vehicleID, customerID, pickupLocationID, dropoffLocationID, startDate, endDate, totalCost, isActive)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [vehicleID, customerID, pickupLocationID, dropoffLocationID, startDate, endDate, totalCost || 0, active]
     );
+
+    // Update vehicle availability to unavailable when any rental is created
+    await db.query('UPDATE Vehicles SET isAvailable = 0 WHERE vehicleID = ?', [vehicleID]);
+
     res.redirect('/rentals');
   } catch (err) {
     console.error(err);
@@ -70,12 +99,38 @@ router.post('/', async (req, res) => {
 router.get('/delete/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    await db.query('DELETE FROM Rentals WHERE rentalID = ?', [id]);
+    // Call stored procedure to delete rental
+    await db.query('CALL DeleteRental(?)', [id]);
     res.redirect('/rentals');
   } catch (err) {
     console.error(err);
     const errorMessage = getErrorMessage(err);
     res.redirect(`/rentals?error=${encodeURIComponent(errorMessage)}`);
+  }
+});
+
+// API endpoint to get vehicle's current location
+router.get('/vehicle-location/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Get the most recent vehicle location for available vehicles
+    const [result] = await db.query(`
+      SELECT vl.locationID, l.locationName 
+      FROM VehicleLocations vl
+      JOIN Locations l ON vl.locationID = l.locationID
+      WHERE vl.vehicleID = ?
+      ORDER BY vl.createdAt DESC
+      LIMIT 1
+    `, [id]);
+    
+    if (result.length > 0) {
+      res.json(result[0]);
+    } else {
+      res.json({ locationID: null, locationName: null });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch vehicle location' });
   }
 });
 

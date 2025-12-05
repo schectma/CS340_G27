@@ -48,4 +48,18 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Delete a vehicle-location assignment (M:N relationship delete)
+router.get('/delete/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Call stored procedure to delete vehicle location assignment
+    await db.query('CALL DeleteVehicleLocation(?)', [id]);
+    res.redirect('/vehicles_locations');
+  } catch (err) {
+    console.error(err);
+    const errorMessage = getErrorMessage(err);
+    res.redirect(`/vehicles_locations?error=${encodeURIComponent(errorMessage)}`);
+  }
+});
+
 module.exports = router;
