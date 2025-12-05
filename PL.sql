@@ -1,3 +1,4 @@
+-- Active: 1763945060826@@127.0.0.1@3306@VehicleRentalDB
 -- ===========================================
 -- CS340 Portfolio Project - PL.sql
 -- Citations:
@@ -15,8 +16,7 @@ USE VehicleRentalDB;
 -- CreateCustomer: Insert a new customer into the database
 DROP PROCEDURE IF EXISTS CreateCustomer;
 
-DELIMITER /
-/
+DELIMITER //
 
 CREATE PROCEDURE CreateCustomer(
     IN p_customerName VARCHAR(100),
@@ -38,11 +38,9 @@ BEGIN
     -- Insert new customer
     INSERT INTO Customers (customerName, customerEmail, customerPhone)
     VALUES (p_customerName, p_customerEmail, p_customerPhone);
-END
-/
-/
+END //
 
-DELIMITER;
+DELIMITER ;
 
 -- ===========================================
 -- UPDATE Operations
@@ -51,8 +49,7 @@ DELIMITER;
 -- UpdateVehicle: Update an existing vehicle's information
 DROP PROCEDURE IF EXISTS UpdateVehicle;
 
-DELIMITER /
-/
+DELIMITER //
 
 CREATE PROCEDURE UpdateVehicle(
     IN p_vehicleID INT,
@@ -91,11 +88,9 @@ BEGIN
         basePrice = p_basePrice,
         isAvailable = p_isAvailable
     WHERE vehicleID = p_vehicleID;
-END
-/
-/
+END //
 
-DELIMITER;
+DELIMITER ;
 
 -- ===========================================
 -- DELETE Operations
@@ -104,8 +99,7 @@ DELIMITER;
 -- DeleteRental: Delete a rental record
 DROP PROCEDURE IF EXISTS DeleteRental;
 
-DELIMITER /
-/
+DELIMITER //
 
 CREATE PROCEDURE DeleteRental(
     IN p_rentalID INT
@@ -141,17 +135,14 @@ BEGIN
         SELECT 1 FROM Rentals 
         WHERE vehicleID = v_vehicleID
     );
-END
-/
-/
+END //
 
-DELIMITER;
+DELIMITER ;
 
 -- DeleteVehicleLocation: Delete a vehicle-location assignment (M:N relationship)
 DROP PROCEDURE IF EXISTS DeleteVehicleLocation;
 
-DELIMITER /
-/
+DELIMITER //
 
 CREATE PROCEDURE DeleteVehicleLocation(
     IN p_vehicleLocationID INT
@@ -172,11 +163,9 @@ BEGIN
     
     -- Delete vehicle location assignment
     DELETE FROM VehicleLocations WHERE vehicleLocationID = p_vehicleLocationID;
-END
-/
-/
+END //
 
-DELIMITER;
+DELIMITER ;
 
 -- ===========================================
 -- M:N UPDATE Operations
@@ -188,8 +177,7 @@ DELIMITER;
 
 DROP PROCEDURE IF EXISTS UpsertVehicleLocation;
 
-DELIMITER /
-/
+DELIMITER //
 
 CREATE PROCEDURE UpsertVehicleLocation(
     IN p_vehicleID INT,
@@ -221,8 +209,6 @@ BEGIN
     VALUES (p_vehicleID, p_locationID)
     ON DUPLICATE KEY UPDATE
         locationID = VALUES(locationID);
-END
-/
-/
+END //
 
-DELIMITER;
+DELIMITER ;
