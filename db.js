@@ -1,5 +1,5 @@
 require('dotenv').config();
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
@@ -14,16 +14,39 @@ const pool = mysql.createPool({
   keepAliveInitialDelay: 0
 });
 
-const promisePool = pool.promise();
-
-// Test the connection
-pool.getConnection((err, connection) => {
-  if (err) {
-    console.error('Error connecting to MySQL:', err);
-    return;
+// Test connection with retry logic for Railway deployment
+async function testConnection(retries = 10, delay = 3000) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const connection = await pool.getConnection();
+      console.log('Connected to MySQL database');
+      
+      // Check if tables exist, call ResetDatabase() if not (Railway auto-init)
+      const [tables] = await connection.query("SHOW TABLES LIKE 'Customers'");
+      if (tables.length === 0) {
+        console.log('No tables found. Calling ResetDatabase()...');
+        await connection.query('CALL ResetDatabase()');
+        console.log('Database initialized via ResetDatabase() stored procedure');
+      } else {
+        console.log('Tables already exist');
+      }
+      
+      connection.release();
+      return;
+    } catch (error) {
+      console.log(`Database connection attempt ${i + 1}/${retries} failed. Retrying in ${delay/1000}s...`);
+      if (i === retries - 1) {
+        console.error('Error connecting to MySQL:', error);
+        throw error;
+      }
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
   }
-  console.log('Connected to MySQL database');
-  connection.release();
+}
+
+testConnection().catch(err => {
+  console.error('Failed to connect to database after retries:', err);
+  process.exit(1);
 });
 
-module.exports = promisePool;
+module.exports = pool;
