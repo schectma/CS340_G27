@@ -7,7 +7,7 @@
 --   AI Assistance: Used GitHub Copilot for debugging syntax errors, optimizing queries, and
 --   generating procedure logic.
 
-USE VehicleRentalDB;
+USE railway;
 
 -- ===========================================
 -- CREATE Operations
