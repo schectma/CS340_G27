@@ -34,7 +34,7 @@ async function testConnection(retries = 10, delay = 3000) {
       connection.release();
       return;
     } catch (error) {
-      console.log(`Database connection attempt ${i + 1}/${retries} failed. Retrying in ${delay/1000}s...`);
+      console.log(`Database connection attempt ${i + 1}/${retries} failed. Retrying in 3s...`);
       if (i === retries - 1) {
         console.error('Error connecting to MySQL:', error);
         throw error;
@@ -44,9 +44,8 @@ async function testConnection(retries = 10, delay = 3000) {
   }
 }
 
-testConnection().catch(err => {
-  console.error('Failed to connect to database after retries:', err);
-  process.exit(1);
-});
+// Store the connection promise so app.js can await it
+const connectionPromise = testConnection();
 
 module.exports = pool;
+module.exports.ready = connectionPromise;
