@@ -1,17 +1,10 @@
 # Vehicle Rental Management System (VRMS)
 
-A simple web application for managing vehicle rental records.
+A simple web application for managing vehicle rental records. Try it [here](https://cs340g27-production.up.railway.app/).
 
 ## Overview
 
 Manage fundamental elements of a typical vehicle rental business via GUI triggering standard CRUD operations.
-
-## Try It
-
-1. Open [the deployed webapp](https://cs340g27-production.up.railway.app/) in any browser.
-2. Use the navigation bar to switch between Customers, Vehicles, Locations, Rentals, and Vehicle-Locations.
-3. Add, update, or delete new records using the forms on each page.
-4. Use the reset option only if you want to restore the database to its initial sample state.
 
 ### Primary Entities and CRUD Operations
 
@@ -23,12 +16,55 @@ Manage fundamental elements of a typical vehicle rental business via GUI trigger
 | Rentals | Yes | Yes | No | Yes |
 | Vehicle Locations | No | Yes | Yes | No |
 
+### General CRUD Flow
+
+```mermaid
+sequenceDiagram
+    actor User
+    User->>Browser: Navigate to entity page
+    Browser->>Express: GET /entity
+    Express->>DB: SELECT * FROM Entity
+    DB-->>Express: Records
+    Express->>EJS: Render index.ejs
+    EJS-->>Browser: Display list
+    Browser-->>User: View all records
+    
+    alt Create - All entities except Vehicle Locations
+        User->>Browser: Submit create form
+        Browser->>Express: POST /entity
+        Express->>DB: INSERT into Entity
+        DB-->>Express: Success
+        Express-->>Browser: Redirect to /entity
+    else Update - Vehicles (all), Vehicle Locations (all)
+        User->>Browser: Click edit/update
+        Browser->>Express: GET/POST /entity/update/:id
+        Express->>DB: SELECT / UPDATE Entity
+        DB-->>Express: Record/Success
+        Express-->>Browser: Form or redirect
+    else Delete - Vehicles, Customers, Locations, Rentals
+        User->>Browser: Click delete
+        Browser->>Express: GET /entity/delete/:id
+        Express->>DB: DELETE from Entity
+        DB-->>Express: Success or constraint error
+        Express-->>Browser: Redirect or error
+    end
+    
+    Browser->>Express: GET /entity (post-CRUD refresh)
+    Express->>DB: SELECT * FROM Entity
+    DB-->>Express: Updated records
+    Express->>EJS: Render updated list
+    EJS-->>Browser: Display results
+    Browser-->>User: Show operation result
+```
+
 ### Key Features
 
 **Business Logic:**
 - Prevents deletion of customers or vehicles with active rentals
 - Validates that rental start dates don't exceed end dates
 - Tracks vehicle availability and prevents double-booking
+- Automatic timestamp tracking for all records
+- Rental calculations with total cost tracking
 - Vehicle model updates with stored procedure support
 
 **Data Integrity:**
@@ -54,10 +90,17 @@ flowchart LR
   V -->|HTML response| U
 ```
 
+## Getting Started
 
+1. Open [the deployed webapp](https://cs340g27-production.up.railway.app/) in your browser.
+2. Use the navigation bar to switch between Customers, Vehicles, Locations, Rentals, and Vehicle-Locations.
+3. Add new records using the forms on each page, and use the edit or delete actions where available.
+4. Review rentals to see which vehicles are active, available, or associated with specific customers and locations.
+5. Use the reset option only if you want to restore the database to its initial sample state.
 
 ## Database Schema
 All tables include timestamps and enforce data integrity with foreign key constraints.
+
 ```mermaid
 erDiagram
   VEHICLES {
@@ -145,6 +188,3 @@ public/                   # Static assets (CSS, JavaScript)
   ├── css/
   └── js/
 ```
-
-## Disclaimer
-Not suitable for actual business/production use. Created for Oregon State University's CS340 (Intro to Databases) in Fall of 2025. Intended to demonstrate basic competencies in database design and implementation.
