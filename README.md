@@ -2,6 +2,8 @@
 
 A simple web application for managing vehicle rental records.
 
+<img width="2456" height="1466" alt="image" src="https://github.com/user-attachments/assets/a6fac2d0-de27-4f9a-bc97-b83286fe8f17" />
+
 ## Overview
 
 Manage fundamental elements of a typical vehicle rental business via GUI triggering standard CRUD operations.
