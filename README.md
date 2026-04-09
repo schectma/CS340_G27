@@ -1,6 +1,6 @@
 # Vehicle Rental Management System (VRMS)
 
-A simple web application for managing vehicle rental records. Try it [here](https://cs340g27-production.up.railway.app/).
+A simple web application for managing vehicle rental records.
 
 ## Overview
 
@@ -15,6 +15,13 @@ Manage fundamental elements of a typical vehicle rental business via GUI trigger
 | Locations | Yes | Yes | No | Yes |
 | Rentals | Yes | Yes | No | Yes |
 | Vehicle Locations | No | Yes | Yes | No |
+
+## Getting Started
+
+1. Open [the deployed webapp](https://cs340g27-production.up.railway.app/) in your browser.
+2. Use the navigation bar to switch between Customers, Vehicles, Locations, Rentals, and Vehicle-Locations.
+3. Add, update, and/or delete new records using the labeled buttons and forms on each page.
+4. Use the reset option only if you want to restore the database to its initial sample state.
 
 ### General CRUD Flow
 
@@ -63,8 +70,6 @@ sequenceDiagram
 - Prevents deletion of customers or vehicles with active rentals
 - Validates that rental start dates don't exceed end dates
 - Tracks vehicle availability and prevents double-booking
-- Automatic timestamp tracking for all records
-- Rental calculations with total cost tracking
 - Vehicle model updates with stored procedure support
 
 **Data Integrity:**
@@ -89,14 +94,6 @@ flowchart LR
   V -->|HTML response| U
   A -->|Static assets from public/| U
 ```
-
-## Getting Started
-
-1. Open [the deployed webapp](https://cs340g27-production.up.railway.app/) in your browser.
-2. Use the navigation bar to switch between Customers, Vehicles, Locations, Rentals, and Vehicle-Locations.
-3. Add new records using the forms on each page, and use the edit or delete actions where available.
-4. Review rentals to see which vehicles are active, available, or associated with specific customers and locations.
-5. Use the reset option only if you want to restore the database to its initial sample state.
 
 ## Database Schema
 All tables include timestamps and enforce data integrity with foreign key constraints.
