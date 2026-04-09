@@ -80,7 +80,6 @@ VRMS uses a server-rendered MVC-style structure where the browser interacts with
 ```mermaid
 flowchart LR
   U[User Browser] -->|HTTP requests| A[Express App app.js]
-  A -->|Serve static assets| P[public css/js]
   A -->|Route handling| R[routes/*.js]
   R -->|Render views| V[views/*.ejs]
   R -->|SQL queries| D[db.js]
@@ -88,6 +87,7 @@ flowchart LR
   M -->|Query results| D
   D -->|Rows/Status| R
   V -->|HTML response| U
+  A -->|Static assets from public/| U
 ```
 
 ## Getting Started
