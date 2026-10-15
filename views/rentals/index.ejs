@@ -8,15 +8,236 @@
 </head>
 <body>
   <%- include('../partials/navbar') %>
-  <div class="container mt-4">
-    <h1>Rentals</h1>
-    <a href="/rentals/new" class="btn btn-primary mb-3">Add Rental</a>
-    <table class="table">
-      
+    <div class="container mt-4">
+  <h1>Rentals</h1>
+  <% if (error) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <%= error %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <% } %>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Vehicle</th>
+            <th>Customer</th>
+            <th>Pickup Location</th>
+            <th>Dropoff Location</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Total Cost</th>
+            <th>Active</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% rentals.forEach(rental=> { %>
+            <tr>
+              <td>
+                <%= rental.rentalID %>
+              </td>
+              <td>
+                <%= rental.vehicleModel || rental.vehicleID %>
+              </td>
+              <td>
+                <%= rental.customerName || rental.customerID %>
+              </td>
+              <td>
+                <%= rental.pickupLocationName || rental.pickupLocationID %>
+              </td>
+              <td>
+                <%= rental.dropoffLocationName || rental.dropoffLocationID %>
+              </td>
+              <td>
+                <%= rental.startDate ? (new Date(rental.startDate)).toLocaleDateString('en-US') : '' %>
+              </td>
+              <td>
+                <%= rental.endDate ? (new Date(rental.endDate)).toLocaleDateString('en-US') : '' %>
+              </td>
+              <td>
+                <%= rental.totalCost %>
+              </td>
+              <td>
+                <%= rental.isActive ? 'Yes' : 'No' %>
+              </td>
+              <td><a href="/rentals/delete/<%= rental.rentalID %>" class="btn btn-danger btn-sm">Delete</a></td>
+            </tr>
+            <% }) %>
+        </tbody>
+      </table>
 
-      
-    </table>
-  </div>
-  <script src="/js/bootstrap.bundle.min.js"></script>
+      <!-- Inline Add Rental form (below the table) -->
+      <h2 class="mt-4">Add Rental</h2>
+      <form action="/rentals" method="POST">
+        <div class="mb-3">
+          <label for="vehicleID" class="form-label">Vehicle</label>
+          <select id="vehicleID" name="vehicleID" class="form-select" required>
+            <option value="">Choose vehicle</option>
+            <% (vehicles || []).forEach(v => { %>
+              <option value="<%= v.vehicleID %>">
+                <%= v.model %> (<%= v.year %>) - $<%= v.basePrice %>/day
+                <% if (v.earliestStartDate) { %>
+                  (available at <%= v.scheduledLocationName %> on <%= v.earliestStartDate %>)
+                <% } else if (v.currentLocationName) { %>
+                  (at <%= v.currentLocationName %>)
+                <% } %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="customerID" class="form-label">Customer</label>
+          <select id="customerID" name="customerID" class="form-select" required>
+            <option value="">Choose customer</option>
+            <% (customers || []).forEach(c => { %>
+              <option value="<%= c.customerID %>"><%= c.customerName %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="row">
+          <div class="col mb-3">
+            <label for="pickupLocationID" class="form-label">Pickup Location</label>
+            <select id="pickupLocationID" name="pickupLocationID" class="form-select" required>
+              <option value="">Choose pickup</option>
+              <% (locations || []).forEach(l => { %>
+                <option value="<%= l.locationID %>"><%= l.locationName %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="col mb-3">
+            <label for="dropoffLocationID" class="form-label">Dropoff Location</label>
+            <select id="dropoffLocationID" name="dropoffLocationID" class="form-select" required>
+              <option value="">Choose dropoff</option>
+              <% (locations || []).forEach(l => { %>
+                <option value="<%= l.locationID %>"><%= l.locationName %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col mb-3">
+            <label for="startDate" class="form-label">Start Date</label>
+            <input id="startDate" name="startDate" type="date" class="form-control" required>
+          </div>
+          <div class="col mb-3">
+            <label for="endDate" class="form-label">End Date</label>
+            <input id="endDate" name="endDate" type="date" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="totalCost" class="form-label">Total Cost (Auto-calculated)</label>
+          <input id="totalCost" name="totalCost" type="number" step="0.01" class="form-control" placeholder="0.00" readonly>
+        </div>
+
+        <div class="form-check mb-3">
+          <input id="isActive" name="isActive" type="checkbox" class="form-check-input" checked>
+          <label class="form-check-label" for="isActive">Active</label>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Create Rental</button>
+      </form>
+    </div>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script id="vehicle-data" type="application/json"><%- JSON.stringify(vehicles.reduce((acc, v) => {
+      acc[v.vehicleID] = {
+        price: v.basePrice,
+        available: v.isAvailable,
+        currentLocationID: v.currentLocationID,
+        earliestStartDate: v.earliestStartDate,
+        scheduledLocationID: v.scheduledLocationID
+      };
+      return acc;
+    }, {})).replace(/</g, '\\u003c') %></script>
+    <script>
+      const vehicleData = JSON.parse(document.getElementById('vehicle-data').textContent);
+
+      const vehicleSelect = document.getElementById('vehicleID');
+      const startDateInput = document.getElementById('startDate');
+      const endDateInput = document.getElementById('endDate');
+      const totalCostInput = document.getElementById('totalCost');
+      const pickupLocationSelect = document.getElementById('pickupLocationID');
+      const rentalForm = document.querySelector('form[action="/rentals"]');
+
+      // Auto-populate pickup location when vehicle is selected
+      vehicleSelect.addEventListener('change', async function() {
+        const vehicleID = this.value;
+        if (vehicleID) {
+          try {
+            // Fetch the vehicle's current location
+            const response = await fetch(`/rentals/vehicle-location/${vehicleID}`);
+            if (response.ok) {
+              const data = await response.json();
+              setLocationOptions(data.locationID);
+              startDateInput.min = data.earliestStartDate || '';
+            }
+          } catch (err) {
+            console.error('Error fetching vehicle location:', err);
+          }
+        } else {
+          setLocationOptions(null);
+          startDateInput.min = '';
+        }
+        calculateCost();
+      });
+
+      function setLocationOptions(locationID) {
+        Array.from(pickupLocationSelect.options).forEach(option => {
+          option.disabled = Boolean(locationID) && option.value !== String(locationID);
+        });
+        if (locationID) {
+          pickupLocationSelect.value = String(locationID);
+        } else {
+          pickupLocationSelect.value = '';
+        }
+      }
+
+      // Calculate cost when dates or vehicle changes
+      startDateInput.addEventListener('change', calculateCost);
+      endDateInput.addEventListener('change', calculateCost);
+
+      function calculateCost() {
+        const vehicleID = vehicleSelect.value;
+        const startDate = startDateInput.value;
+        const endDate = endDateInput.value;
+
+        if (vehicleID && startDate && endDate) {
+          const vehicle = vehicleData[vehicleID];
+          if (vehicle) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+            
+            if (days >= 0) {
+              const totalCost = days * vehicle.price;
+              totalCostInput.value = totalCost.toFixed(2);
+            } else {
+              totalCostInput.value = '0.00';
+            }
+          }
+        }
+      }
+
+      // Show confirmation dialog before submitting
+      rentalForm.addEventListener('submit', function(e) {
+        const totalCost = totalCostInput.value;
+        const vehicleText = vehicleSelect.options[vehicleSelect.selectedIndex].text;
+        const customerText = document.getElementById('customerID').options[document.getElementById('customerID').selectedIndex].text;
+        const startDate = startDateInput.value;
+        const endDate = endDateInput.value;
+
+        if (totalCost && parseFloat(totalCost) > 0) {
+          const message = `Confirm Rental:\n\nVehicle: ${vehicleText}\nCustomer: ${customerText}\nDates: ${startDate} to ${endDate}\nTotal Cost: $${totalCost}\n\nProceed with this rental?`;
+          
+          if (!confirm(message)) {
+            e.preventDefault();
+          }
+        }
+      });
+    </script>
 </body>
 </html>
